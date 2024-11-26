@@ -1,44 +1,85 @@
 package com.example.kiosk;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Kiosk {
-  private final List<MenuItem> menuItems = new ArrayList<>();
-
-    public void checkMenu() {
-        menuItems.add(new MenuItem("ShackBurger", 6.9, "토마토, 양상추, 쉑소스가 토핑된 치즈버거" ));
-        menuItems.add(new MenuItem("SmokeShack", 6.9, "베이컨, 체리 페퍼에 쉑소스가 토핑된 치즈버거"));
-        menuItems.add(new MenuItem("Cheeseburger", 6.9, "포테이토 번과 비프패티, 치즈가 토핑된 치즈버거" ));
-        menuItems.add(new MenuItem("Hamburger", 6.9, "비프패티를 기반으로 야채가 들어간 기본버거" ));
+    private final List<Menu> menus;  // 여러 개의 Menu 객체를 저장할 리스트
+    private static int selectNumber;
+    // 생성자를 통해 Menu 객체들을 전달받음
+    private final Scanner scanner = new Scanner(System.in);
+    public Kiosk(List<Menu> menus) {
+        this.menus = menus;
     }
 
     public void start() {
-       Scanner scanner = new Scanner(System.in);
+        while (true) {
+            printMainMenu(); // 메인 메뉴 출력
+            selectNumber = getValidNumberInput(0,menus.size()); // scanner로 받는 값 검증
+            if(shutdown(selectNumber)){ // 입력값 0일 경우에 프로그램을 종료
+                break;
+            }
 
-       while (true) {
-           System.out.println("[ SHAKESHACK MENU ]");
-           for (int i = 0; i < menuItems.size(); i++) { // 반복문을 통해 List에 있는 요소들을 나열함
-               MenuItem item = menuItems.get(i);
-               System.out.println((i + 1) + ". " + item.getBurgerName() + " " + item.getPrice() + " " + item.getDescription());
-           }
-           System.out.println("0. 종료");
-           int selectNumber = scanner.nextInt();
-           if (selectNumber == 0) {
-               System.out.println("프로그램을 종료합니다.");
-               break;
-           } else if (selectNumber > menuItems.size()){
-               System.out.println("항목이 존재하지 않습니다");
-               continue;
-           }
+            Menu SelectedFood = printSelectedCategory(); // 세부 메뉴 출력
+            selectNumber = getValidNumberInput(0,menus.size()); // scanner로  각 상위메뉴가 갖고 있는 요소의 길이를 검증함
+            if(previousMenu(selectNumber)){ // 입력값 0일 경우에 이전 메뉴로 이동
+                continue;
+            }
+            printSelectedFood(SelectedFood); // 선택이 된 음식이 지정되며 출력됨
+            }
+        }
 
-           System.out.println("선택한 메뉴 : " + selectNumber + ". " +
-                   menuItems.get(selectNumber - 1).getBurgerName() + " " +
-                   menuItems.get(selectNumber - 1).getPrice() + " " +
-                   menuItems.get(selectNumber - 1).getDescription()); // 입력받은 값으로 List에 있는 객체를 선택할 수 있게함
+    public void printMainMenu() {
+        System.out.println("[ MAIN MENU ]");
+        for (int i = 0; i < menus.size(); i++) { // 반복문을 통해 List에 있는 요소들을 나열함
+            System.out.println((1 + i) + ". " + menus.get(i).getCategory());
+        }
+        System.out.println("0. 종료");
+    }
+    public Menu printSelectedCategory(){
+        Menu selectedCategory = menus.get(selectNumber - 1);
+        System.out.println("[  " + selectedCategory.getCategory() + " MENU  ]");
+        selectedCategory.showMenuItem();
+        System.out.println("0. 뒤로가기");
+        return selectedCategory;
+    }
 
+    public void printSelectedFood(Menu selectedCategory) {
+        MenuItem selectedFood = selectedCategory.getMenuItem(selectNumber - 1);
+        System.out.print("선택한 메뉴 : ");
+        System.out.println(selectedFood.toString());
+    }
 
-       }
-   }
+    public boolean shutdown(int selectNumber) {
+
+        if(selectNumber == 0) {
+            System.out.println("프로그램을 종료합니다");
+            return true;
+        }  return false;
+    }
+
+    public boolean previousMenu(int selectNumber){
+        if(selectNumber == 0) {
+            System.out.println("이전 메뉴로 돌아갑니다.");
+            return true;
+        } return false;
+    }
+
+    //이 부분은 chatgpt로 도움을 받음, try-catch로 하고 싶었는데 하지 못함
+    public int getValidNumberInput(int min, int max) {
+        while (true) {
+            if (!scanner.hasNextInt()) {
+                System.out.println("숫자만 입력하세요.");
+                scanner.next();
+                continue;
+            }
+            int number = scanner.nextInt();
+            scanner.nextLine();
+
+            if (number < min || number > max) {
+                System.out.println("입력값이 범위를 벗어났습니다.");
+                continue;
+            }
+            return number;
+        }
+    }
 }

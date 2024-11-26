@@ -1,18 +1,18 @@
 package com.example.kiosk;
 
 public class MenuItem {
-    private final String burgerName;
+    private final String foodName;
     private final double price;
     private final String description;
 
     public MenuItem(String burgerName, double price, String description) {
-        this.burgerName = burgerName;
+        this.foodName = burgerName;
         this.price = price;
         this.description = description;
     }
 
-    public String getBurgerName() {
-        return burgerName;
+    public String getFoodName() {
+        return foodName;
     }
 
     public double getPrice() {
@@ -22,4 +22,11 @@ public class MenuItem {
     public String getDescription() {
         return description;
     }
+
+    @Override
+    public String toString() {
+        return  String.format("%-15s | W %.1f | %s", foodName , price, description) ;
+    }
+
+
 }
